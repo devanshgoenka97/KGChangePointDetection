@@ -46,7 +46,7 @@ class Runner(object):
 
 		self.p.num_ent		= len(self.ent2id)
 		self.p.num_rel		= len(self.rel2id) // 2
-		self.p.embed_dim	= self.p.k_w * self.p.k_h if self.p.embed_dim is None else self.p.embed_dim
+		self.p.score_func   = 'transe'
 
 		self.data = ddict(list)
 		sr2o = ddict(set)
@@ -155,7 +155,7 @@ class Runner(object):
 
 		self.load_data()
 		self.model        = CompGCN_TransE(self.edge_index, self.edge_type, params=self.p)
-		model.to(self.device)
+		self.model.to(self.device)
 
 		self.optimizer    = torch.optim.Adam(self.model.parameters(), lr=self.p.lr, weight_decay=self.p.l2)
 
@@ -240,7 +240,7 @@ class Runner(object):
 		left_results  = self.predict(split=split, mode='tail_batch')
 		right_results = self.predict(split=split, mode='head_batch')
 		results       = get_combined_results(left_results, right_results)
-		self.logger.info('[Epoch {} {}]: MRR: Tail : {:.5}, Head : {:.5}, Avg : {:.5}'.format(epoch, split, results['left_mrr'], results['right_mrr'], results['mrr']))
+		print('[Epoch {} {}]: MRR: Tail : {:.5}, Head : {:.5}, Avg : {:.5}'.format(epoch, split, results['left_mrr'], results['right_mrr'], results['mrr']))
 		return results
 
 	def predict(self, split='valid', mode='tail_batch'):
@@ -315,10 +315,10 @@ class Runner(object):
 			losses.append(loss.item())
 
 			if step % 100 == 0:
-				self.logger.info('[E:{}| {}]: Train Loss:{:.5},  Val MRR:{:.5}\t{}'.format(epoch, step, np.mean(losses), self.best_val_mrr, self.p.name))
+				print('[E:{}| {}]: Train Loss:{:.5},  Val MRR:{:.5}\t{}'.format(epoch, step, np.mean(losses), self.best_val_mrr, self.p.name))
 
 		loss = np.mean(losses)
-		self.logger.info('[Epoch:{}]:  Training Loss:{:.4}\n'.format(epoch, loss))
+		print('[Epoch:{}]:  Training Loss:{:.4}\n'.format(epoch, loss))
 		return loss
 
 	def fit(self):
@@ -333,10 +333,6 @@ class Runner(object):
 		"""
 		self.best_val_mrr, self.best_val, self.best_epoch, val_mrr = 0., {}, 0, 0.
 		save_path = os.path.join('./checkpoints', self.p.name)
-
-		if self.p.restore:
-			self.load_model(save_path)
-			self.logger.info('Successfully Loaded previous model')
 
 		kill_cnt = 0
 		for epoch in range(self.p.max_epochs):
@@ -369,7 +365,8 @@ if __name__ == '__main__':
 
 	parser.add_argument('-name',		default='testrun',					help='Set run name for saving/restoring models')
 	parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
-	parser.add_argument('-opn',             dest='opn',             default='corr',                 help='Composition Operation to be used in CompGCN')
+	parser.add_argument('-model',		dest='model',		default='compgcn',		help='Model Name')
+	parser.add_argument('-opn',             dest='opn',             default='sub',                 help='Composition Operation to be used in CompGCN')
 
 	parser.add_argument('-batch',           dest='batch_size',      default=128,    type=int,       help='Batch size')
 	parser.add_argument('-gamma',		type=float,             default=40.0,			help='Margin')

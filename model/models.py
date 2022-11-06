@@ -16,10 +16,8 @@ class BaseModel(torch.nn.Module):
 class CompGCNBase(BaseModel):
 	def __init__(self, edge_index, edge_type, num_rel, params=None):
 		super(CompGCNBase, self).__init__(params)
-
 		self.edge_index		= edge_index
 		self.edge_type		= edge_type
-		self.p.gcn_dim		= self.p.embed_dim if self.p.gcn_layer == 1 else self.p.gcn_dim
 		self.init_embed		= get_param((self.p.num_ent,   self.p.init_dim))
 		self.device		= self.edge_index.device
 
@@ -54,7 +52,7 @@ class CompGCNBase(BaseModel):
 
 class CompGCN_TransE(CompGCNBase):
 	def __init__(self, edge_index, edge_type, params=None):
-		super(self.__class__, self).__init__(edge_index, edge_type, params.num_rel, params)
+		super(CompGCN_TransE, self).__init__(edge_index, edge_type, params.num_rel, params)
 		self.drop = torch.nn.Dropout(self.p.hid_drop)
 
 	def forward(self, sub, rel):

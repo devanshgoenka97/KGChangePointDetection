@@ -27,9 +27,6 @@ class TrainDataset(Dataset):
 		triple, label, sub_samp	= torch.LongTensor(ele['triple']), np.int32(ele['label']), np.float32(ele['sub_samp'])
 		trp_label		= self.get_label(label)
 
-		if self.p.lbl_smooth != 0.0:
-			trp_label = (1.0 - self.p.lbl_smooth)*trp_label + (1.0/self.p.num_ent)
-
 		return triple, trp_label, None, None
 
 	@staticmethod
