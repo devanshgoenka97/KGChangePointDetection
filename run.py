@@ -144,9 +144,6 @@ class Runner(object):
 		
 		"""
 		self.p			= params
-		self.logger		= get_logger(self.p.name, self.p.log_dir, self.p.config_dir)
-
-		self.logger.info(vars(self.p))
 		pprint(vars(self.p))
 
 		if self.p.gpu != '-1' and torch.cuda.is_available():
@@ -157,47 +154,10 @@ class Runner(object):
 			self.device = torch.device('cpu')
 
 		self.load_data()
-		self.model        = self.add_model(self.p.model, self.p.score_func)
-		self.optimizer    = self.add_optimizer(self.model.parameters())
-
-
-	def add_model(self, model, score_func):
-		"""
-		Creates the computational graph
-
-		Parameters
-		----------
-		model_name:     Contains the model name to be created
-		
-		Returns
-		-------
-		Creates the computational graph for model and initializes it
-		
-		"""
-		model_name = '{}_{}'.format(model, score_func)
-
-		if   model_name.lower()	== 'compgcn_transe': 	model = CompGCN_TransE(self.edge_index, self.edge_type, params=self.p)
-		elif model_name.lower()	== 'compgcn_distmult': 	model = CompGCN_DistMult(self.edge_index, self.edge_type, params=self.p)
-		elif model_name.lower()	== 'compgcn_conve': 	model = CompGCN_ConvE(self.edge_index, self.edge_type, params=self.p)
-		else: raise NotImplementedError
-
+		self.model        = CompGCN_TransE(self.edge_index, self.edge_type, params=self.p)
 		model.to(self.device)
-		return model
 
-	def add_optimizer(self, parameters):
-		"""
-		Creates an optimizer for training the parameters
-
-		Parameters
-		----------
-		parameters:         The parameters of the model
-		
-		Returns
-		-------
-		Returns an optimizer for learning the parameters of the model
-		
-		"""
-		return torch.optim.Adam(parameters, lr=self.p.lr, weight_decay=self.p.l2)
+		self.optimizer    = torch.optim.Adam(self.model.parameters(), lr=self.p.lr, weight_decay=self.p.l2)
 
 	def read_batch(self, batch, split):
 		"""
@@ -327,7 +287,6 @@ class Runner(object):
 
 		return results
 
-
 	def run_epoch(self, epoch, val_mrr = 0):
 		"""
 		Function to run one epoch of training
@@ -361,7 +320,6 @@ class Runner(object):
 		loss = np.mean(losses)
 		self.logger.info('[Epoch:{}]:  Training Loss:{:.4}\n'.format(epoch, loss))
 		return loss
-
 
 	def fit(self):
 		"""
@@ -410,9 +368,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Parser For Arguments', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 	parser.add_argument('-name',		default='testrun',					help='Set run name for saving/restoring models')
-	parser.add_argument('-data',		dest='dataset',         default='FB15k-237',            help='Dataset to use, default: FB15k-237')
-	parser.add_argument('-model',		dest='model',		default='compgcn',		help='Model Name')
-	parser.add_argument('-score_func',	dest='score_func',	default='conve',		help='Score Function for Link prediction')
+	parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
 	parser.add_argument('-opn',             dest='opn',             default='corr',                 help='Composition Operation to be used in CompGCN')
 
 	parser.add_argument('-batch',           dest='batch_size',      default=128,    type=int,       help='Batch size')
@@ -421,13 +377,9 @@ if __name__ == '__main__':
 	parser.add_argument('-epoch',		dest='max_epochs', 	type=int,       default=500,  	help='Number of epochs')
 	parser.add_argument('-l2',		type=float,             default=0.0,			help='L2 Regularization for Optimizer')
 	parser.add_argument('-lr',		type=float,             default=0.001,			help='Starting Learning Rate')
-	parser.add_argument('-lbl_smooth',      dest='lbl_smooth',	type=float,     default=0.1,	help='Label Smoothing')
 	parser.add_argument('-num_workers',	type=int,               default=10,                     help='Number of processes to construct batches')
 	parser.add_argument('-seed',            dest='seed',            default=41504,  type=int,     	help='Seed for randomization')
-
-	parser.add_argument('-restore',         dest='restore',         action='store_true',            help='Restore from the previously saved model')
 	parser.add_argument('-bias',            dest='bias',            action='store_true',            help='Whether to use bias in the model')
-
 	parser.add_argument('-num_bases',	dest='num_bases', 	default=-1,   	type=int, 	help='Number of basis relation vectors to use')
 	parser.add_argument('-init_dim',	dest='init_dim',	default=100,	type=int,	help='Initial dimension size for entities and relations')
 	parser.add_argument('-gcn_dim',	  	dest='gcn_dim', 	default=200,   	type=int, 	help='Number of hidden units in GCN')
@@ -436,19 +388,9 @@ if __name__ == '__main__':
 	parser.add_argument('-gcn_drop',	dest='dropout', 	default=0.1,  	type=float,	help='Dropout to use in GCN Layer')
 	parser.add_argument('-hid_drop',  	dest='hid_drop', 	default=0.3,  	type=float,	help='Dropout after GCN')
 
-	# ConvE specific hyperparameters
-	parser.add_argument('-hid_drop2',  	dest='hid_drop2', 	default=0.3,  	type=float,	help='ConvE: Hidden dropout')
-	parser.add_argument('-feat_drop', 	dest='feat_drop', 	default=0.3,  	type=float,	help='ConvE: Feature Dropout')
-	parser.add_argument('-k_w',	  	dest='k_w', 		default=10,   	type=int, 	help='ConvE: k_w')
-	parser.add_argument('-k_h',	  	dest='k_h', 		default=20,   	type=int, 	help='ConvE: k_h')
-	parser.add_argument('-num_filt',  	dest='num_filt', 	default=200,   	type=int, 	help='ConvE: Number of filters in convolution')
-	parser.add_argument('-ker_sz',    	dest='ker_sz', 		default=7,   	type=int, 	help='ConvE: Kernel size to use')
-
-	parser.add_argument('-logdir',          dest='log_dir',         default='./log/',               help='Log directory')
-	parser.add_argument('-config',          dest='config_dir',      default='./config/',            help='Config directory')
 	args = parser.parse_args()
 
-	if not args.restore: args.name = args.name + '_' + time.strftime('%d_%m_%Y') + '_' + time.strftime('%H:%M:%S')
+	args.name = args.name + '_' + time.strftime('%d_%m_%Y') + '_' + time.strftime('%H:%M:%S')
 
 	set_gpu(args.gpu)
 	np.random.seed(args.seed)

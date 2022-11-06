@@ -7,7 +7,7 @@ class TrainDataset(Dataset):
 
 	Parameters
 	----------
-	triples:	The triples used for training the model
+	triples:	The triplets used for training the model
 	params:		Parameters for the experiments
 	
 	Returns
