@@ -283,7 +283,7 @@ class Runner(object):
 					results['hits@{}'.format(k+1)] = torch.numel(ranks[ranks <= (k+1)]) + results.get('hits@{}'.format(k+1), 0.0)
 
 				if step % 100 == 0:
-					self.logger.info('[{}, {} Step {}]\t{}'.format(split.title(), mode.title(), step, self.p.name))
+					print('[{}, {} Step {}]\t{}'.format(split.title(), mode.title(), step, self.p.name))
 
 		return results
 
