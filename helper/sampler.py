@@ -15,7 +15,7 @@ if len(sys.argv) <= 1:
     exit()
 
 print("Processing input data...")
-with open('./data/FB15K-237/train.txt', 'r') as f:
+with open('./data/FB15K-237/test.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
@@ -53,7 +53,7 @@ print("Generating synthetic KGs for the given timesteps...")
 # Function to store triplets to disk
 def store_triplets(triplets, is_major, timestep=None):
     timestep_name = f"timestep_{timestep}" if not is_major else "major"
-    filename = f"FB15k_train_{timestep_name}.csv"
+    filename = f"test_{timestep_name}.txt"
 
     with open(filename, 'w') as f:
         writer = csv.writer(f, delimiter ='\t',quotechar =',',quoting=csv.QUOTE_MINIMAL)
