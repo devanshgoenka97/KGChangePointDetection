@@ -52,7 +52,7 @@ print("Generating synthetic KGs for the given timesteps...")
 
 # Function to store triplets to disk
 def store_triplets(triplets, is_major, timestep=None):
-    timestep_name = f"timestep_{timestep}" if not is_major else "major"
+    timestep_name = f"timestep_{timestep}_{subgraph_size}_change" if not is_major else "major"
     filename = f"test_{timestep_name}.txt"
 
     with open(filename, 'w') as f:
