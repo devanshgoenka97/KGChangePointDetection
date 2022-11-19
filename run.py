@@ -365,6 +365,7 @@ if __name__ == '__main__':
 
 	parser.add_argument('-name',		default='testrun',					help='Set run name for saving/restoring models')
 	parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
+	parser.add_argument('-testfolder',  dest='testfolder',       default='testdata',             help='Folder where streaming test data is stored')
 	parser.add_argument('-model',		dest='model',		default='compgcn',		help='Model Name')
 	parser.add_argument('-opn',             dest='opn',             default='sub',                 help='Composition Operation to be used in CompGCN')
 

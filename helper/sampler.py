@@ -15,7 +15,7 @@ if len(sys.argv) <= 1:
     exit()
 
 print("Processing input data...")
-with open('./data/FB15K-237/test.txt', 'r') as f:
+with open('./data/FB15K-237/train.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
