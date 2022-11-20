@@ -296,4 +296,4 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
 
     model = Runner(args)
-    model.evaluate()
+    model.evaluate('test', 100)
