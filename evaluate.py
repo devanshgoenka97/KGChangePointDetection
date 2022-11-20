@@ -252,7 +252,6 @@ if __name__ == '__main__':
     parser.add_argument('-l2',		type=float,             default=0.0,			help='L2 Regularization for Optimizer')
     parser.add_argument('-lr',		type=float,             default=0.001,			help='Starting Learning Rate')
     parser.add_argument('-num_workers',	type=int,               default=10,                     help='Number of processes to construct batches')
-    parser.add_argument('-seed',            dest='seed',            default=41504,  type=int,     	help='Seed for randomization')
     parser.add_argument('-bias',            dest='bias',            action='store_true',            help='Whether to use bias in the model')
     parser.add_argument('-num_bases',	dest='num_bases', 	default=-1,   	type=int, 	help='Number of basis relation vectors to use')
     parser.add_argument('-init_dim',	dest='init_dim',	default=100,	type=int,	help='Initial dimension size for entities and relations')
