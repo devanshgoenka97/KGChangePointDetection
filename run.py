@@ -403,5 +403,9 @@ if __name__ == '__main__':
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
+    # Set GPU seed
+    if torch.cuda.is_available(): 
+        torch.cuda.manual_seed(args.seed)
+
     model = Runner(args)
     model.fit()
