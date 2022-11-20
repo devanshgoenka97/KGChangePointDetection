@@ -333,6 +333,8 @@ class Runner(object):
 		"""
 		self.best_val_mrr, self.best_val, self.best_epoch, val_mrr = 0., {}, 0, 0.
 		save_path = os.path.join('./checkpoints', self.p.name)
+		if args.restore:
+			self.load_model(save_path)
 
 		kill_cnt = 0
 		for epoch in range(self.p.max_epochs):
@@ -388,7 +390,12 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	args.name = args.name + '_' + time.strftime('%d_%m_%Y') + '_' + time.strftime('%H:%M:%S')
+	args.restore = False
+	# Only create new file when path exists otherwise resume training
+	if not os.path.exists(os.path.join('./checkpoints', args.name)):
+		args.name = args.name + '_' + time.strftime('%d_%m_%Y') + '_' + time.strftime('%H:%M:%S')
+	else:
+		args.restore = True
 
 	set_gpu(args.gpu)
 	np.random.seed(args.seed)
