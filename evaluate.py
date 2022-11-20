@@ -6,6 +6,34 @@ from model.models import *
 
 class Runner(object):
 
+    def construct_adj(self):
+        """
+        Constructor of the runner class
+
+        Parameters
+        ----------
+        
+        Returns
+        -------
+        Constructs the adjacency matrix for GCN
+        
+        """
+        edge_index, edge_type = [], []
+
+        for sub, rel, obj in self.data['train']:
+            edge_index.append((sub, obj))
+            edge_type.append(rel)
+
+        # Adding inverse edges
+        for sub, rel, obj in self.data['train']:
+            edge_index.append((obj, sub))
+            edge_type.append(rel + self.p.num_rel)
+
+        edge_index	= torch.LongTensor(edge_index).to(self.device).t()
+        edge_type	= torch.LongTensor(edge_type). to(self.device)
+
+        return edge_index, edge_type
+
     def load_data(self):
         """
         Reading in raw triples and converts it into a standard format. 
