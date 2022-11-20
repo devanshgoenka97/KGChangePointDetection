@@ -59,7 +59,7 @@ class Runner(object):
 
         ent_set, rel_set = OrderedSet(), OrderedSet()
         for split in ['train', 'test', 'valid']:
-            for line in open('./data/{}/{}.txt'.format(self.p.dataset, split)):
+            for line in open('./data/{}/original_{}.txt'.format(self.p.dataset, split)):
                 sub, rel, obj = map(str.lower, line.strip().split('\t'))
                 ent_set.add(sub)
                 rel_set.add(rel)
