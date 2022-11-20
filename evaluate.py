@@ -191,7 +191,7 @@ class Runner(object):
         Returns
         -------
         """
-        state			= torch.load(load_path)
+        state			= torch.load(load_path, map_location=self.device)
         state_dict		= state['state_dict']
         self.best_val		= state['best_val']
         self.best_val_mrr	= self.best_val['mrr'] 
@@ -272,6 +272,8 @@ if __name__ == '__main__':
     parser.add_argument('-name',		default='testrun',					help='Set run name for saving/restoring models')
     parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
     parser.add_argument('-testfolder',  dest='testfolder',       default='testdata',             help='Folder where streaming test data is stored')
+    parser.add_argument('-opn',             dest='opn',             default='sub',                 help='Composition Operation to be used in CompGCN')
+    parser.add_argument('-gamma',		type=float,             default=40.0,			help='Margin')
 
     parser.add_argument('-batch',           dest='batch_size',      default=128,    type=int,       help='Batch size')
     parser.add_argument('-gpu',		type=str,               default='0',			help='Set GPU Ids : Eg: For CPU = -1, For Single GPU = 0')
