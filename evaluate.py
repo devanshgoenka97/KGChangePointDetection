@@ -79,7 +79,7 @@ class Runner(object):
         self.data = ddict(list)
         sr2o = ddict(set)
 
-        for split in ['train', 'test', 'valid']:
+        for split in ['train', 'valid']:
             for line in open('./data/{}/{}.txt'.format(self.p.dataset, split)):
                 sub, rel, obj = map(str.lower, line.strip().split('\t'))
                 sub, rel, obj = self.ent2id[sub], self.rel2id[rel], self.ent2id[obj]
@@ -88,6 +88,12 @@ class Runner(object):
                 if split == 'train': 
                     sr2o[(sub, rel)].add(obj)
                     sr2o[(obj, rel+self.p.num_rel)].add(sub)
+
+        # Read from separate file for test split
+        for line in open('./data/{}/{}.txt'.format(self.p.dataset, self.p.testfilename)):
+            sub, rel, obj = map(str.lower, line.strip().split('\t'))
+            sub, rel, obj = self.ent2id[sub], self.rel2id[rel], self.ent2id[obj]
+            self.data['test'].append((sub, rel, obj))
 
         self.data = dict(self.data)
 
@@ -271,7 +277,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-name',		default='testrun',					help='Set run name for saving/restoring models')
     parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
-    parser.add_argument('-testfolder',  dest='testfolder',       default='testdata',             help='Folder where streaming test data is stored')
+    parser.add_argument('-testfilename',  dest='testfilename',       default='test',             help='File where snapshot test data is stored')
     parser.add_argument('-opn',             dest='opn',             default='sub',                 help='Composition Operation to be used in CompGCN')
     parser.add_argument('-gamma',		type=float,             default=40.0,			help='Margin')
 
