@@ -163,7 +163,7 @@ class Runner(object):
         self.model        = CompGCN_TransE(self.edge_index, self.edge_type, params=self.p)
         self.model.to(self.device)
         self.optimizer    = torch.optim.Adam(self.model.parameters(), lr=self.p.lr, weight_decay=self.p.l2)
-        self.load_model(self.p.name)
+        self.load_model(self.p.modelpath)
 
     def read_batch(self, batch, split):
         """
@@ -268,14 +268,14 @@ class Runner(object):
                     results['hits@{}'.format(k+1)] = torch.numel(ranks[ranks <= (k+1)]) + results.get('hits@{}'.format(k+1), 0.0)
 
                 if step % 100 == 0:
-                    print('[{}, {} Step {}]\t{}'.format(split.title(), mode.title(), step, self.p.name))
+                    print('[{}, {} Step {}]\t{}'.format(split.title(), mode.title(), step, self.p.modelpath))
 
         return results
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parser For Arguments', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('-name',		default='testrun',					help='Set run name for saving/restoring models')
+    parser.add_argument('-modelpath',		default='testrun',					help='Path of stored model to load and test')
     parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
     parser.add_argument('-testfilename',  dest='testfilename',       default='test',             help='File where snapshot test data is stored')
     parser.add_argument('-opn',             dest='opn',             default='sub',                 help='Composition Operation to be used in CompGCN')
