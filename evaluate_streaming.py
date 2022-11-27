@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     for file_ in os.listdir(f'./data/{args.dataset}/{args.testfolder}'):
         file_ = os.path.splitext(file_)[0]
-        timestep = file_.split('timestep_')[1].split('_')[0]
+        timestep = int(file_.split('timestep_')[1].split('_')[0])
         print(f'Processing file: {file_}')
         args.testfilename = args.testfolder + '/' + file_
         model = Runner(args)
