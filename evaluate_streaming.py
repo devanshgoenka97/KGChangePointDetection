@@ -44,4 +44,5 @@ if __name__ == '__main__':
         file_ = os.path.splitext(file_)[0]
         args.testfilename = args.testfolder + '/' + file_
         model = Runner(args)
-        model.evaluate('test', 100)
+        results = model.evaluate('test', 100)
+        print(results['mrr'])
