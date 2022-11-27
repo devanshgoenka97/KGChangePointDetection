@@ -8,7 +8,7 @@ ENTITIES = set()
 RELATIONS = set()
 TRIPLETS = []
 
-SUBGRAPH_CHANGE_PERCENT = 5.0
+SUBGRAPH_CHANGE_PERCENT = 0.5
 timesteps = int(sys.argv[1])
 
 # Read original entities and relations in test set
@@ -58,8 +58,9 @@ MAJOR_RELATIONS = list(MAJOR_RELATIONS)
 def store_triplets(triplets, is_major, timestep=None):
     timestep_name = f"timestep_{timestep}_{SUBGRAPH_CHANGE_PERCENT}_change" if not is_major else "major"
     filename = f"test_{timestep_name}.txt"
+    
 
-    with open(filename, 'w') as f:
+    with open('./testdata/' + filename, 'w') as f:
         writer = csv.writer(f, delimiter ='\t',quotechar =',',quoting=csv.QUOTE_MINIMAL)
         for (head, relation, tail) in triplets:
             writer.writerow([head, relation, tail])
