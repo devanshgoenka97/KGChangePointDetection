@@ -1,6 +1,6 @@
 import sys
 import os
-from collections import OrderedDict
+from collections import defaultdict
 from evaluate import Runner
 from helper.helper import *
 from helper.data_loader import *
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available(): 
         torch.cuda.manual_seed(args.seed)
 
-    results = OrderedDict()
+    results = defaultdict()
 
     for file_ in os.listdir(f'./data/{args.dataset}/{args.testfolder}'):
         file_ = os.path.splitext(file_)[0]
@@ -52,5 +52,6 @@ if __name__ == '__main__':
         result = model.evaluate('test', 100)
         results[timestep] = result
 
-    for k, v in results.items():
+    results = sorted(results.items())
+    for k, v in results:
         print(f"MRR for timestep {k} = {v['mrr']}")
