@@ -63,7 +63,7 @@ class CompGCN_TransE(CompGCNBase):
 		x	= self.p.gamma - torch.norm(obj_emb.unsqueeze(1) - all_ent, p=1, dim=2)		
 		score	= torch.sigmoid(x)
 
-		return score
+		return score, sub_emb, rel_emb
 
 class CompGCN_DistMult(CompGCNBase):
 	def __init__(self, edge_index, edge_type, params=None):
