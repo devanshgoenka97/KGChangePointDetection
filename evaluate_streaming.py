@@ -1,5 +1,6 @@
 import sys
 import os
+from collections import defaultdict
 from evaluate import Runner
 from helper.helper import *
 from helper.data_loader import *
@@ -40,9 +41,15 @@ if __name__ == '__main__':
     if torch.cuda.is_available(): 
         torch.cuda.manual_seed(args.seed)
 
+    results = defaultdict()
+
     for file_ in os.listdir(f'./data/{args.dataset}/{args.testfolder}'):
         file_ = os.path.splitext(file_)[0]
+        timestep = file_.split('timestep_')[1].split('_')[0]
+        print(f'Processing file: {file_}')
         args.testfilename = args.testfolder + '/' + file_
         model = Runner(args)
-        results = model.evaluate('test', 100)
-        print(results['mrr'])
+        result = model.evaluate('test', 100)
+        results[timestep] = result
+
+    import pdb; pdb.set_trace()
