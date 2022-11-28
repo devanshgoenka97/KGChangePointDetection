@@ -243,14 +243,15 @@ class Runner(object):
                     sub, rel, obj, label	= self.read_batch(batch, 'test')
                     _, sub_emb, rel_emb			= self.model.forward(sub, rel)
 
-                    sub = sub.cpu()
-                    rel = rel.cpu()
+                    sub = sub.cpu().numpy()
+                    rel = rel.cpu().numpy()
                     sub_emb = sub_emb.cpu()
                     rel_emb = rel_emb.cpu()
 
                     for i in range(len(sub)):
-                        self.ent_embed[sub[i]] = sub_emb[i]
-                        self.rel_embed[rel[i]] = rel_emb[i]
+                        import pdb; pdb.set_trace()
+                        self.ent_embed[int(sub[i])] = sub_emb[i]
+                        self.rel_embed[int(rel[i])] = rel_emb[i]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parser For Arguments', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
