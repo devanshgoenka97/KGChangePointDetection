@@ -19,7 +19,7 @@ SubgraphChangePercent = 4 # [%], percentage of relations to change in the sub-gr
 NumSubgraphs = 100 # number of sub-graphs in series
 SaveType = "train" # "train", "valid", or "test"
 DataDelimiter = '\t'
-dataset_name = "MathOverflow" # "FB15K-237", "MathOverflow"
+dataset_name = "HiggsTwitter" # "FB15K-237", "MathOverflow", "HiggsTwitter"
 total_train_path = "../data/" + dataset_name + "/original_train.txt"
 
 seed_number = 1234
