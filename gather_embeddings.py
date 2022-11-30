@@ -81,7 +81,7 @@ class Runner(object):
         sr2o = ddict(set)
 
         for split in ['train', 'valid', 'test']:
-            for line in open('./data/{}/original_{}.txt'.format(self.p.dataset, split)):
+            for line in open('./data/{}/{}.txt'.format(self.p.dataset, split)):
                 sub, rel, obj = map(str.lower, line.strip().split('\t'))
                 sub, rel, obj = self.ent2id[sub], self.rel2id[rel], self.ent2id[obj]
                 self.data[split].append((sub, rel, obj))
