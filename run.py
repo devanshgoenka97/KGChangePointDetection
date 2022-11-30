@@ -393,7 +393,7 @@ if __name__ == '__main__':
     args.restore = False
     # Only create new file when path exists otherwise resume training
     if not os.path.exists(os.path.join('./checkpoints', args.name)):
-        args.name = args.name + '_' + time.strftime('%d_%m_%Y') + '_' + time.strftime('%H:%M:%S')
+        args.name = args.name + '_' + time.strftime('%d_%m_%Y') + '_' + time.strftime('%H_%M_%S')
     else:
         args.restore = True
 
