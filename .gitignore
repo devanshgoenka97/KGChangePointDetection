@@ -130,3 +130,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# redundant dataset
+sx-mathoverflow*.csv
+sx-mathoverflow*.txt
+higgs-activity_time.txt
