@@ -53,5 +53,13 @@ if __name__ == '__main__':
         results[timestep] = result
 
     results = sorted(results.items())
+    f = open(f'./stream_mrr_{args.dataset}.txt', 'a')
+
     for k, v in results:
         print(f"MRR for timestep {k} = {v['mrr']}")
+        f.write(f"{v['mrr']}\n")
+
+    f.close()
+    print("Done writing results to stream_mrr_{args.dataset}.txt")
+        
+
