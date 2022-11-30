@@ -335,6 +335,7 @@ class Runner(object):
         save_path = os.path.join('./checkpoints', self.p.name)
         if args.restore:
             self.load_model(save_path)
+            self.best_val_mrr = float(0)
             self.model.train()
 
         kill_cnt = 0
