@@ -253,7 +253,7 @@ class Runner(object):
 
             for step, batch in enumerate(train_iter):
                 sub, rel, obj, label	= self.read_batch(batch, split)
-                pred			= self.model.forward(sub, rel)
+                pred, _, _		= self.model.forward(sub, rel)
                 b_range			= torch.arange(pred.size()[0], device=self.device)
                 target_pred		= pred[b_range, obj]
                 pred 			= torch.where(label.byte(), -torch.ones_like(pred) * 10000000, pred)
