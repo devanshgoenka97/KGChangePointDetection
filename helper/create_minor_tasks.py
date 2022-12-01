@@ -94,10 +94,10 @@ for i in range(timesteps):
     non_contributing_entities = [e for e in ENTITIES if e not in CURRENT_ENTITIES]
 
     # Pick all but entities_sub entities from the current list
-    MINOR_ENTITIES.extend(random.sample(contributing_entities, len(CURRENT_ENTITIES) - entities_sub))
+    MINOR_ENTITIES.extend(random.sample(contributing_entities, max(len(CURRENT_ENTITIES), len(CURRENT_ENTITIES) - entities_sub)))
 
     # Add some entities from non-used ones
-    MINOR_ENTITIES.extend(random.sample(non_contributing_entities, entities_add))
+    MINOR_ENTITIES.extend(random.sample(non_contributing_entities, min(entities_add, len(non_contributing_entities))))
 
     MINOR_TASK_TRIPLETS = []
     for (head, relation, tail) in tqdm(TRIPLETS):
