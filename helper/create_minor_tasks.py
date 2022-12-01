@@ -13,11 +13,11 @@ ENTITIES = set()
 RELATIONS = set()
 TRIPLETS = []
 
-DEFAULT_ADD_PERCENT = 1.0
-DEFAULT_DROP_PERCENT = 0.8
+DEFAULT_ADD_PERCENT = 0.5
+DEFAULT_DROP_PERCENT = 0.5
 
-INITIAL_COOLDOWN = 10
-CHANGE_MULTIPLIERS = [5.0, 10.0, 15.0]
+INITIAL_COOLDOWN = 20
+CHANGE_MULTIPLIERS = [4.0, 6.0, 8.0]
 
 if len(sys.argv) < 2:
     print("Error: Expected number of timesteps in argument")
