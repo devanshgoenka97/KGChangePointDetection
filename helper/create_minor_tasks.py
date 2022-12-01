@@ -1,19 +1,23 @@
 from tqdm import tqdm
+import random
 import numpy as np
 import csv
 import sys
 
 # Set seed to create/re-create shuffled data
 np.random.seed(1234)
+random.seed(1234)
 
 # Initializing as set to get unique entities and relations
 ENTITIES = set()
 RELATIONS = set()
 TRIPLETS = []
 
-DEFAULT_CHANGE_PERCENT = 1.0
+DEFAULT_ADD_PERCENT = 1.0
+DEFAULT_DROP_PERCENT = 0.8
+
 INITIAL_COOLDOWN = 10
-OTHER_CHANGE_PERCENTS = [2.0, 5.0, 10.0]
+CHANGE_MULTIPLIERS = [5.0, 10.0, 15.0]
 
 if len(sys.argv) < 2:
     print("Error: Expected number of timesteps in argument")
@@ -31,10 +35,6 @@ with open('./data/FB15K-237/original_test.txt', 'r') as f:
         ENTITIES.add(tail)
         RELATIONS.add(relation)
         TRIPLETS.append((head, relation, tail))
-
-no_entities = len(ENTITIES)
-no_relations = len(RELATIONS)
-no_triplets = len(TRIPLETS)
 
 # Converting to list to make these data structures subscriptable
 ENTITIES = list(ENTITIES)
@@ -55,13 +55,11 @@ with open('./data/FB15K-237/test.txt', 'r') as f:
         MAJOR_RELATIONS.add(relation)
         MAJOR_TRIPLETS.append((head, relation, tail))
 
-maj_entities = len(MAJOR_ENTITIES)
-maj_relations = len(MAJOR_RELATIONS)
-maj_triplets = len(MAJOR_TRIPLETS)
-
 # Converting to list to make these data structures subscriptable
 MAJOR_ENTITIES = list(MAJOR_ENTITIES)
 MAJOR_RELATIONS = list(MAJOR_RELATIONS)
+
+num_maj_ents = len(MAJOR_ENTITIES)
 
 # Function to store triplets to disk
 def store_triplets(triplets, change, timestep=None):
@@ -73,26 +71,33 @@ def store_triplets(triplets, change, timestep=None):
         for (head, relation, tail) in triplets:
             writer.writerow([head, relation, tail])
 
+# Keep track of the entitities in the previous timestep (at t=0)
+CURRENT_ENTITIES = MAJOR_ENTITIES
 
 # Now for each timestep, perform bounded addition and deletion and create sub test graphs
 for i in range(timesteps):
     print(f"Generating KG for timestep {i+1}...")
-    change = DEFAULT_CHANGE_PERCENT
+    change_mult = 1.0
 
-    # Increase change percent to create change point
-    if i + 1 > INITIAL_COOLDOWN and np.random.uniform() <= 0.15:
-        change = np.random.choice(OTHER_CHANGE_PERCENTS, size=1)[0]
+    # Pick a lottery for a change multiplier
+    if i + 1 > INITIAL_COOLDOWN and np.random.uniform() <= 0.20:
+        print(f"Picking timestep: {i+1} as a change point")
+        change_mult = random.sample(CHANGE_MULTIPLIERS, 1)[0]
 
-    entities_add = int(maj_entities * (change/100.0))
-    entities_sub = entities_add
+    entities_add = int(len(CURRENT_ENTITIES) * ((DEFAULT_ADD_PERCENT * change_mult)/100.0))
+    entities_sub = int(len(CURRENT_ENTITIES) * ((DEFAULT_DROP_PERCENT * change_mult)/100.0))
 
-    # Randomly drop entities_sub and relations_sub number from their respective subgraphs
-    MINOR_ENTITIES = list(np.random.choice(MAJOR_ENTITIES, size = maj_entities - entities_sub))
+    # Randomly drop entities_sub number of entities from subgraph
+    MINOR_ENTITIES = []
 
-    non_contributing_entities = [e for e in ENTITIES if e not in MAJOR_ENTITIES]
+    contributing_entities = [e for e in CURRENT_ENTITIES]
+    non_contributing_entities = [e for e in ENTITIES if e not in CURRENT_ENTITIES]
 
-    # Add some entities and relations from non-used ones
-    MINOR_ENTITIES.extend(np.random.choice(non_contributing_entities, size = entities_add))
+    # Pick all but entities_sub entities from the current list
+    MINOR_ENTITIES.extend(random.sample(contributing_entities, len(CURRENT_ENTITIES) - entities_sub))
+
+    # Add some entities from non-used ones
+    MINOR_ENTITIES.extend(random.sample(non_contributing_entities, entities_add))
 
     MINOR_TASK_TRIPLETS = []
     for (head, relation, tail) in tqdm(TRIPLETS):
@@ -100,6 +105,7 @@ for i in range(timesteps):
         if head in MINOR_ENTITIES and tail in MINOR_ENTITIES:
             MINOR_TASK_TRIPLETS.append((head, relation, tail))
 
-    store_triplets(MINOR_TASK_TRIPLETS, change, i+1)
+    store_triplets(MINOR_TASK_TRIPLETS, change_mult, i+1)
+    CURRENT_ENTITIES = MINOR_ENTITIES
 
 print("Done generating synthetic KGs.")
