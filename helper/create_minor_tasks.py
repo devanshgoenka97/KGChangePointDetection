@@ -16,8 +16,8 @@ TRIPLETS = []
 DEFAULT_ADD_PERCENT = 0.05
 DEFAULT_DROP_PERCENT = 5.0
 
-INITIAL_COOLDOWN = 20
-CHANGE_MULTIPLIERS = [2.0, 3.0, 4.0]
+INITIAL_COOLDOWN = 5
+CHANGE_MULTIPLIERS = [4.0, 5.0, 6.0]
 
 if len(sys.argv) < 3:
     print("Error: Expected number of timesteps and train/test in argument")
