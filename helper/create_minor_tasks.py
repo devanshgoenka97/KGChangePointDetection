@@ -19,14 +19,15 @@ DEFAULT_DROP_PERCENT = 5.0
 INITIAL_COOLDOWN = 20
 CHANGE_MULTIPLIERS = [2.0, 3.0, 4.0]
 
-if len(sys.argv) < 2:
-    print("Error: Expected number of timesteps in argument")
+if len(sys.argv) < 3:
+    print("Error: Expected number of timesteps and train/test in argument")
     exit()
 
 timesteps = int(sys.argv[1])
+dataset = sys.argv[2]
 
-# Read original entities and relations in test set
-with open('./data/FB15K-237/original_test.txt', 'r') as f:
+# Read original entities and relations in original set
+with open(f'./data/FB15K-237/original_{dataset}.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
@@ -44,8 +45,8 @@ MAJOR_ENTITIES = set()
 MAJOR_RELATIONS = set()
 MAJOR_TRIPLETS = []
 
-# Read entities and relations from major task test set
-with open('./data/FB15K-237/test.txt', 'r') as f:
+# Read entities and relations from major task set
+with open(f'./data/FB15K-237/{dataset}.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
@@ -64,9 +65,9 @@ num_maj_ents = len(MAJOR_ENTITIES)
 # Function to store triplets to disk
 def store_triplets(triplets, change, timestep=None):
     timestep_name = f"timestep_{timestep}_{change}_change"
-    filename = f"test_{timestep_name}.txt"
+    filename = f"{dataset}_{timestep_name}.txt"
 
-    with open('./testdata/' + filename, 'w') as f:
+    with open(f'./{dataset}data/' + filename, 'w') as f:
         writer = csv.writer(f, delimiter ='\t',quotechar =',',quoting=csv.QUOTE_MINIMAL)
         for (head, relation, tail) in triplets:
             writer.writerow([head, relation, tail])
