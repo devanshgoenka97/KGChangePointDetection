@@ -13,25 +13,22 @@ ENTITIES = set()
 RELATIONS = set()
 TRIPLETS = dict()
 
-DEFAULT_ADD_PERCENT = 5.0
-DEFAULT_DROP_PERCENT = 5.0
+DEFAULT_ADD_PERCENT = 1.1
+DEFAULT_DROP_PERCENT = 1.0
 
-INITIAL_COOLDOWN = 5
+INITIAL_COOLDOWN = 20
 CHANGE_MULTIPLIERS = [4.0, 5.0, 6.0]
 
-# if len(sys.argv) < 3:
-#     print("Error: Expected number of timesteps and train/test in argument")
-#     exit()
+if len(sys.argv) < 3:
+    print("Error: Expected number of timesteps and train/test in argument")
+    exit()
 
-# timesteps = int(sys.argv[1])
-# dataset = sys.argv[2]
-
-## for testing in Spyder
-timesteps = 1000
-dataset = "test"
+timesteps = int(sys.argv[1])
+dataset = sys.argv[2]
+DATASET = sys.argv[3] if len(sys.argv) > 3 else 'FB15K-237'
 
 # Read original entities and relations in original set
-with open(f'../data/FB15K-237/original_{dataset}.txt', 'r') as f:
+with open(f'./data/{DATASET}/original_{dataset}.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
@@ -57,7 +54,7 @@ MAJOR_RELATIONS = set()
 MAJOR_TRIPLETS = []
 
 # Read entities and relations from major task set
-with open(f'../data/FB15K-237/{dataset}.txt', 'r') as f:
+with open(f'./data/{DATASET}/{dataset}.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
@@ -78,7 +75,7 @@ def store_triplets(triplets, change, timestep=None):
     timestep_name = f"timestep_{timestep}_{change}_change"
     filename = f"{dataset}_{timestep_name}.txt"
 
-    with open(f'../data/FB15K-237/{dataset}data_/' + filename, 'w', newline='') as f:
+    with open(f'./{dataset}data/' + filename, 'w', newline='') as f:
         writer = csv.writer(f, delimiter ='\t',quotechar =',',quoting=csv.QUOTE_MINIMAL)
         for (head, relation, tail) in triplets:
             writer.writerow([head, relation, tail])

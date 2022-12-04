@@ -13,11 +13,12 @@ if len(sys.argv) < 2:
     exit()
 
 SUBGRAPH_CHANGE_PERCENT = int(sys.argv[1])
+DATASET = sys.argv[2] if len(sys.argv) > 2 else 'FB15K-237'
 
 # Creating major task train and test sets
-print("Processing input data...")
+print(f"Processing input data for the dataset: {DATASET}")
 
-with open('./data/FB15K-237/original_train.txt', 'r') as f:
+with open(f'./data/{DATASET}/original_train.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
@@ -60,7 +61,7 @@ with open('new_train.txt', 'w') as f:
 # Now create validation and test set
 
 VALID_TRIPLETS = []
-with open('./data/FB15K-237/original_valid.txt', 'r') as f:
+with open(f'./data/{DATASET}/original_valid.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
@@ -74,7 +75,7 @@ with open('new_valid.txt', 'w') as f:
             writer.writerow([head, relation, tail])
 
 TEST_TRIPLETS = []
-with open('./data/FB15K-237/original_test.txt', 'r') as f:
+with open(f'./data/{DATASET}/original_test.txt', 'r') as f:
     reader = csv.reader(f, delimiter='\t')
 
     for row in tqdm(reader):
