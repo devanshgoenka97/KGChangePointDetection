@@ -195,6 +195,7 @@ class Runner(object):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parser For Arguments', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
+    parser.add_argument('-name',		default='testrun',					help='Set run name for saving/restoring models')
     parser.add_argument('-modelpath',		default='testrun',					help='Path of stored model to load and test')
     parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
     parser.add_argument('-trainfolder',		dest='trainfolder',         default='traindata',            help='Dataset to use, default: FB15k-237')
