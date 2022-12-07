@@ -6,6 +6,8 @@ from tqdm import tqdm
 import pickle
 from model.models import *
 
+K = 1000
+
 class Runner(object):
 
     def construct_adj(self):
@@ -125,8 +127,9 @@ class Runner(object):
                 ent_emb1 = self.get_embeddings(file1)
                 ent_emb2 = self.get_embeddings(file2)
                 intersecting_ents = list(set(ent_emb1.keys()) & set(ent_emb2.keys()))
+                differences = [torch.linalg.norm(ent_emb1[k] - ent_emb2[k], ord=2) for k in intersecting_ents]
+                differences = torch.topk(torch.tensor(differences), K)
                 import pdb; pdb.set_trace()
-
 
     def get_embeddings(self, filename):
         # Create adjacency matrix for each train file
