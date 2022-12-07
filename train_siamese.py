@@ -141,6 +141,7 @@ class Runner(object):
             pairs = [(trainfiles[i], trainfiles[i + 1]) for i in range(len(trainfiles) - 1)]
 
             losses = []
+            ent_emb1 = ddict()
 
             for file1, file2 in pairs:
                 # Create label, if change point or not
@@ -148,9 +149,13 @@ class Runner(object):
                 label = torch.tensor([1.0]) if cp > 1.0 else torch.tensor([0.0])
                 label = label.to(self.device)
 
-                ent_emb1 = self.get_embeddings(file1)
+                # Use previous step to avoid recomputation
+                if len(ent_emb1) == 0:
+                    ent_emb1 = self.get_embeddings(file1)
+
                 ent_emb2 = self.get_embeddings(file2)
                 intersecting_ents = list(set(ent_emb1.keys()) & set(ent_emb2.keys()))
+
                 differences = [torch.linalg.norm(ent_emb1[k] - ent_emb2[k], ord=2) for k in intersecting_ents]
                 differences = torch.topk(torch.tensor(differences).to(self.device), K)
 
@@ -158,9 +163,14 @@ class Runner(object):
                 self.optimizer.zero_grad()
                 output = self.layer(differences.values)
                 loss = criterion(output, label)
-                losses.append(loss)
+                losses.append(loss.cpu().item())
                 loss.backward()
                 self.optimizer.step()
+
+                print('[Epoch:{}]: Loss:{:.4}\n'.format(epoch, loss.cpu().item()))
+
+                # Important optimization, mark the second file as the first file for speedup
+                ent_emb1 = ent_emb2
 
             print('[Epoch:{}]:  Training Loss:{:.4}\n'.format(epoch, np.mean(losses)))
         
