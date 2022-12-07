@@ -6,7 +6,7 @@ from tqdm import tqdm
 import pickle
 from model.models import *
 
-K = 1000
+K = 100
 
 class Runner(object):
 
@@ -115,6 +115,14 @@ class Runner(object):
         self.model.load_state_dict(state_dict)
 
     def train_siamese(self):
+
+        layer = torch.nn.Linear(in_features=K, out_features=1, bias=True).to(self.device)
+        layer.train()
+
+        # Using BCE with logits for better numerical stability
+        criterion = torch.nn.BCEWithLogitsLoss().to(self.device)
+        optimizer = torch.optim.SGD(layer.parameters(), lr=0.001, momentum=0.9)
+
         for _ in range(self.p.max_epochs):
             # Sort the timesteps according to the timestep number -- IMP for training
             trainfiles = sorted(os.listdir(f'./data/{self.p.dataset}/{self.p.trainfolder}'), 
@@ -128,8 +136,15 @@ class Runner(object):
                 ent_emb2 = self.get_embeddings(file2)
                 intersecting_ents = list(set(ent_emb1.keys()) & set(ent_emb2.keys()))
                 differences = [torch.linalg.norm(ent_emb1[k] - ent_emb2[k], ord=2) for k in intersecting_ents]
-                differences = torch.topk(torch.tensor(differences), K)
-                import pdb; pdb.set_trace()
+                differences = torch.topk(torch.tensor(differences).to(self.device), K)
+
+                # Pass through linear layer to train model
+                optimizer.zero_grad()
+                outputs = layer(differences)
+                loss = criterion(outputs, torch.zeros(differences.shape))
+                loss.backward()
+                optimizer.step()
+                
 
     def get_embeddings(self, filename):
         # Create adjacency matrix for each train file
