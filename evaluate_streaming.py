@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-modelpath',		default='testrun',					help='Path of stored model to load and test')
     parser.add_argument('-data',		dest='dataset',         default='FB15K-237',            help='Dataset to use, default: FB15k-237')
-    parser.add_argument('-testfolder',  dest='testfolder',       default='test',             help='Folder where snapshot test data is stored')
+    parser.add_argument('-testfolder',  dest='testfolder',       default='testdata',             help='Folder where snapshot test data is stored')
     parser.add_argument('-opn',             dest='opn',             default='sub',                 help='Composition Operation to be used in CompGCN')
     parser.add_argument('-gamma',		type=float,             default=40.0,			help='Margin')
 
