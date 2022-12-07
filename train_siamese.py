@@ -140,8 +140,8 @@ class Runner(object):
 
                 # Pass through linear layer to train model
                 optimizer.zero_grad()
-                outputs = layer(differences)
-                loss = criterion(outputs, torch.zeros(differences.shape))
+                outputs = layer(differences.values)
+                loss = criterion(outputs, torch.tensor(0.0))
                 loss.backward()
                 optimizer.step()
                 
