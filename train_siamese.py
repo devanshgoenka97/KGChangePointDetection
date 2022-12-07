@@ -106,6 +106,14 @@ class Runner(object):
             triple, label = [ _.to(self.device) for _ in batch]
             return triple[:, 0], triple[:, 1], triple[:, 2], label
 
+    def save_model(self, save_path):
+        state = {
+            'state_dict'	: self.layer.state_dict(),
+            'optimizer'	: self.optimizer.state_dict(),
+            'args'		: vars(self.p)
+        }
+        torch.save(state, save_path)
+    
     def load_model(self, load_path):
         state			= torch.load(load_path, map_location=self.device)
         state_dict		= state['state_dict']
@@ -115,15 +123,16 @@ class Runner(object):
         self.model.load_state_dict(state_dict)
 
     def train_siamese(self):
+        save_path = os.path.join('./checkpoints', self.p.name)
 
-        layer = torch.nn.Linear(in_features=K, out_features=1, bias=True).to(self.device)
-        layer.train()
+        self.layer = torch.nn.Linear(in_features=K, out_features=1, bias=True).to(self.device)
+        self.layer.train()
 
         # Using BCE with logits for better numerical stability
         criterion = torch.nn.BCEWithLogitsLoss().to(self.device)
-        optimizer = torch.optim.SGD(layer.parameters(), lr=self.p.lr, momentum=0.9)
+        self.optimizer = torch.optim.SGD(self.layer.parameters(), lr=self.p.lr, momentum=0.9)
 
-        for _ in range(self.p.max_epochs):
+        for epoch in range(self.p.max_epochs):
             # Sort the timesteps according to the timestep number -- IMP for training
             trainfiles = sorted(os.listdir(f'./data/{self.p.dataset}/{self.p.trainfolder}'), 
                 key=lambda name: int(name.split('train_timestep_')[1].split('_')[0]))
@@ -131,11 +140,13 @@ class Runner(object):
             # Create pairs of tuples to propagate through the siamese network
             pairs = [(trainfiles[i], trainfiles[i + 1]) for i in range(len(trainfiles) - 1)]
 
+            losses = []
+
             for file1, file2 in pairs:
                 # Create label, if change point or not
                 cp = float(file2.split('_')[3])
                 label = torch.tensor([1.0]) if cp > 1.0 else torch.tensor([0.0])
-                label.to(self.device)
+                label = label.to(self.device)
 
                 ent_emb1 = self.get_embeddings(file1)
                 ent_emb2 = self.get_embeddings(file2)
@@ -144,11 +155,16 @@ class Runner(object):
                 differences = torch.topk(torch.tensor(differences).to(self.device), K)
 
                 # Pass through linear layer to train model
-                optimizer.zero_grad()
-                output = layer(differences.values)
+                self.optimizer.zero_grad()
+                output = self.layer(differences.values)
                 loss = criterion(output, label)
+                losses.append(loss)
                 loss.backward()
-                optimizer.step()
+                self.optimizer.step()
+
+            print('[Epoch:{}]:  Training Loss:{:.4}\n'.format(epoch, np.mean(losses)))
+        
+        self.save_model(save_path)
                 
 
     def get_embeddings(self, filename):
