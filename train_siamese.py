@@ -132,6 +132,11 @@ class Runner(object):
             pairs = [(trainfiles[i], trainfiles[i + 1]) for i in range(len(trainfiles) - 1)]
 
             for file1, file2 in pairs:
+                # Create label, if change point or not
+                cp = float(file2.split('_')[3])
+                label = torch.tensor([1.0]) if cp > 1.0 else torch.tensor([0.0])
+                label.to(self.device)
+
                 ent_emb1 = self.get_embeddings(file1)
                 ent_emb2 = self.get_embeddings(file2)
                 intersecting_ents = list(set(ent_emb1.keys()) & set(ent_emb2.keys()))
@@ -140,8 +145,8 @@ class Runner(object):
 
                 # Pass through linear layer to train model
                 optimizer.zero_grad()
-                outputs = layer(differences.values)
-                loss = criterion(outputs, torch.tensor([0.0]))
+                output = layer(differences.values)
+                loss = criterion(output, label)
                 loss.backward()
                 optimizer.step()
                 
