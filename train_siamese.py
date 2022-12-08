@@ -60,7 +60,7 @@ class Runner(object):
         self.triples = dict(self.triples)
 
         self.data_iter = {
-            'train':    	self.get_data_loader(TrainDataset, 'train', 	    256),
+            'train':    	self.get_data_loader(TrainDataset, 'train', 	    128),
         }
 
         self.edge_index, self.edge_type = self.construct_adj()
@@ -181,10 +181,11 @@ class Runner(object):
                     loss.backward()
                     self.optimizer.step()
 
+                    print('[Epoch:{}]: Loss:{:.4}'.format(epoch, loss.cpu().item()))
+
                     # Reset batch
                     batches = None
 
-                print('[Epoch:{}]: Loss:{:.4}'.format(epoch, loss.cpu().item()))
                 print('[Pair: {}/{}]'.format(i, len(pairs)))
                 # Important optimization, mark the second file as the first file for speedup
                 ent_emb1 = ent_emb2
