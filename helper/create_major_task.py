@@ -2,6 +2,11 @@ from tqdm import tqdm
 import numpy as np
 import csv
 import sys
+import random
+
+# Set seed to create/re-create shuffled data
+np.random.seed(1234)
+random.seed(1234)
 
 # Initializing as set to get unique entities and relations
 ENTITIES = set()

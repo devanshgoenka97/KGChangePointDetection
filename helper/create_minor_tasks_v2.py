@@ -4,10 +4,6 @@ import numpy as np
 import csv
 import sys
 
-# Set seed to create/re-create shuffled data
-np.random.seed(1234)
-random.seed(1234)
-
 # Initializing as set to get unique entities and relations
 ENTITIES = set()
 RELATIONS = set()
@@ -26,6 +22,11 @@ if len(sys.argv) < 3:
 timesteps = int(sys.argv[1])
 dataset = sys.argv[2]
 DATASET = sys.argv[3] if len(sys.argv) > 3 else 'FB15K-237'
+
+# Set seed to create/re-create shuffled data
+seeds = {'train': 1234, 'test': 5678}
+np.random.seed(seeds[dataset])
+random.seed(seeds[dataset])
 
 # Read original entities and relations in original set
 with open(f'./data/{DATASET}/original_{dataset}.txt', 'r') as f:
