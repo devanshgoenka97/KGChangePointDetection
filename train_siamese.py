@@ -60,7 +60,7 @@ class Runner(object):
         self.triples = dict(self.triples)
 
         self.data_iter = {
-            'train':    	self.get_data_loader(TrainDataset, 'train', 	    128),
+            'train':    	self.get_data_loader(TrainDataset, 'train', 	    256),
         }
 
         self.edge_index, self.edge_type = self.construct_adj()
@@ -177,7 +177,7 @@ class Runner(object):
                     # Pass through linear layer to train model
                     self.optimizer.zero_grad()
                     output = torch.squeeze(self.layer(batches))
-                    loss = criterion(output, label)
+                    loss = criterion(output, labels)
                     losses.append(loss.cpu().item())
                     loss.backward()
                     self.optimizer.step()
