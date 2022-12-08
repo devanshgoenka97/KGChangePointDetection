@@ -137,6 +137,9 @@ class Runner(object):
             trainfiles = sorted(os.listdir(f'./data/{self.p.dataset}/{self.p.trainfolder}'), 
                 key=lambda name: int(name.split('train_timestep_')[1].split('_')[0]))
 
+            # Train only on first 100 files for speed
+            trainfiles = trainfiles[:100]
+
             # Create pairs of tuples to propagate through the siamese network
             pairs = [(trainfiles[i], trainfiles[i + 1]) for i in range(len(trainfiles) - 1)]
 
