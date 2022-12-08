@@ -163,19 +163,20 @@ class Runner(object):
 
                 differences = [torch.linalg.norm(ent_emb1[k] - ent_emb2[k], ord=2) for k in intersecting_ents]
                 differences = torch.topk(torch.tensor(differences).to(self.device), K)
+                values = torch.unsqueeze(differences.values, dim=0)
 
                 if batches is None:
-                    batches = differences.values
+                    batches = values
                     labels = label
                 else:
-                    batches = torch.cat((batches, differences.values))
+                    batches = torch.cat((batches, values))
                     labels = torch.cat((labels, label))
 
                 # Only do backward on batch size, till then accumulate
                 if (i+1) % self.p.batch_size == 0:
                     # Pass through linear layer to train model
                     self.optimizer.zero_grad()
-                    output = self.layer(batches)
+                    output = torch.squeeze(self.layer(batches))
                     loss = criterion(output, label)
                     losses.append(loss.cpu().item())
                     loss.backward()
