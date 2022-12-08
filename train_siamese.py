@@ -145,7 +145,7 @@ class Runner(object):
             labels = []
             ent_emb1 = ddict()
 
-            for i, file1, file2 in tqdm(enumerate(pairs)):
+            for i, (file1, file2) in enumerate(pairs):
                 # Create label, if change point or not
                 cp = float(file2.split('_')[3])
                 label = torch.tensor([1.0]) if cp > 1.0 else torch.tensor([0.0])
@@ -187,7 +187,7 @@ class Runner(object):
                 ent_emb1 = ent_emb2
 
             print('[Epoch:{}]:  Training Loss:{:.4}'.format(epoch, np.mean(losses)))
-            
+
             # Save model every epoch alternate epoch
             if (i+1) % 2 == 0:
                 self.save_model(save_path)
