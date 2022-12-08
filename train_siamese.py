@@ -141,6 +141,8 @@ class Runner(object):
             pairs = [(trainfiles[i], trainfiles[i + 1]) for i in range(len(trainfiles) - 1)]
 
             losses = []
+            batches = None
+            labels = []
             ent_emb1 = ddict()
 
             for i, file1, file2 in tqdm(enumerate(pairs)):
@@ -159,13 +161,25 @@ class Runner(object):
                 differences = [torch.linalg.norm(ent_emb1[k] - ent_emb2[k], ord=2) for k in intersecting_ents]
                 differences = torch.topk(torch.tensor(differences).to(self.device), K)
 
-                # Pass through linear layer to train model
-                self.optimizer.zero_grad()
-                output = self.layer(differences.values)
-                loss = criterion(output, label)
-                losses.append(loss.cpu().item())
-                loss.backward()
-                self.optimizer.step()
+                if batches is None:
+                    batches = differences.values
+                    labels = label
+                else:
+                    batches = torch.cat((batches, differences.values))
+                    labels = torch.cat((labels, label))
+
+                # Only do backward on batch size, till then accumulate
+                if (i+1) % self.p.batch_size == 0:
+                    # Pass through linear layer to train model
+                    self.optimizer.zero_grad()
+                    output = self.layer(batches)
+                    loss = criterion(output, label)
+                    losses.append(loss.cpu().item())
+                    loss.backward()
+                    self.optimizer.step()
+
+                    # Reset batch
+                    batches = None
 
                 print('[Epoch:{}]: Loss:{:.4}'.format(epoch, loss.cpu().item()))
                 print('[Pair: {}/{}]'.format(i, len(pairs)))
@@ -173,6 +187,10 @@ class Runner(object):
                 ent_emb1 = ent_emb2
 
             print('[Epoch:{}]:  Training Loss:{:.4}'.format(epoch, np.mean(losses)))
+            
+            # Save model every epoch alternate epoch
+            if (i+1) % 2 == 0:
+                self.save_model(save_path)
         
         self.save_model(save_path)
                 
@@ -212,7 +230,7 @@ if __name__ == '__main__':
     parser.add_argument('-opn',             dest='opn',             default='sub',                 help='Composition Operation to be used in CompGCN')
     parser.add_argument('-gamma',		type=float,             default=40.0,			help='Margin')
 
-    parser.add_argument('-batch',           dest='batch_size',      default=128,    type=int,       help='Batch size')
+    parser.add_argument('-batch',           dest='batch_size',      default=4,    type=int,       help='Batch size')
     parser.add_argument('-gpu',		type=str,               default='0',			help='Set GPU Ids : Eg: For CPU = -1, For Single GPU = 0')
     parser.add_argument('-seed',            dest='seed',            default=41504,  type=int,     	help='Seed for randomization')
     parser.add_argument('-epoch',		dest='max_epochs', 	type=int,       default=100,  	help='Number of epochs')
