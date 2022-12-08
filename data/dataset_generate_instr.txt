@@ -1,0 +1,30 @@
+Okay, so here is the flow:
+1. Go to the root of the project folder
+
+2. Download the dataset under the 'data' folder
+
+3. Rename the train.txt, test.txt and valid.txt in the dataset to original_train.txt, original_test.txt, original_valid.txt respectively
+
+4. Create a new folder called 'testdata' and 'traindata' at the ROOT of the project (IMP)
+
+5. Run the script (Note the 2 required arguments): python helper/create_major_task.py <% of original dataset, eg. 80, 90, etc.> <Dataset, (eg. FB15K-237)>. This will create files such as "new_train.txt", "new_test.txt", etc at the ROOT of the project. This is done to ensure we do not overwrite any files accidentally. Now copy these files to the "data/<dataset_name>/" folder and rename them to "train.txt", "valid.txt" and "test.txt". This is our major task set that we just created and installed.
+
+6. Now from the ROOT again, run: python helper/create_minor_tasks_v2.py <# of timesteps> <train/test> <datasetname>. This will create the minor task files in the "testdata" folder at the root if test is provided. Else it will create in the traindata folder
+
+7. Let me know if you have any clarifications
+
+8. Once the files are created, just move the "testdata" or "traindata" folder to the dataset folder under "data/"
+
+9. example:
+<% of original dataset>: 90
+<# of timesteps> for train: 500
+<# of timesteps> for test: 1000
+
+10.
+FB15K-237:
+original_train: 272115
+train: 108843 (0.4)
+
+WN18RR:
+original_train: 86835
+train: 30337 (0.35)

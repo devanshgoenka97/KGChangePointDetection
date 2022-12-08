@@ -120,6 +120,7 @@ venv.bak/
 .ropeproject
 
 # mkdocs documentation
+*.bak
 /site
 
 # mypy
@@ -134,3 +135,6 @@ dmypy.json
 sx-mathoverflow*.csv
 sx-mathoverflow*.txt
 higgs-activity_time.txt
+
+# run on Spyder
+*_Spyder.py
