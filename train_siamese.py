@@ -60,7 +60,7 @@ class Runner(object):
         self.triples = dict(self.triples)
 
         self.data_iter = {
-            'train':    	self.get_data_loader(TrainDataset, 'train', 	    self.p.batch_size),
+            'train':    	self.get_data_loader(TrainDataset, 'train', 	    256),
         }
 
         self.edge_index, self.edge_type = self.construct_adj()
