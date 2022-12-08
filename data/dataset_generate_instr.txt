@@ -22,9 +22,16 @@ Okay, so here is the flow:
 
 10.
 FB15K-237:
-original_train: 272115
+original_train: 272,115
+original_test: 20,466 (0.0752)
 train: 108843 (0.4)
 
 WN18RR:
-original_train: 86835
+original_train: 86,835
+original_test: 3,134 (0.0361)
 train: 30337 (0.35)
+
+MathOverflow:
+original_train: 471,121
+original_test: 35429 (0.0752)
+train: 189249 (0.4017)
