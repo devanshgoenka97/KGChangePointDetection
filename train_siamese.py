@@ -192,7 +192,7 @@ class Runner(object):
             print('[Epoch:{}]:  Training Loss:{:.4}'.format(epoch, np.mean(losses)))
 
             # Save model every epoch alternate epoch
-            if (i+1) % 2 == 0:
+            if (epoch+1) % 2 == 0:
                 print("Saving model....")
                 self.save_model(save_path)
         
