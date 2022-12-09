@@ -135,8 +135,8 @@ class Runner(object):
             trainfiles = sorted(os.listdir(f'./data/{self.p.dataset}/{self.p.trainfolder}'), 
                 key=lambda name: int(name.split('train_timestep_')[1].split('_')[0]))
 
-            # Train only on first 100 files for speed
-            trainfiles = trainfiles[:100]
+            # Train only on first 200 files for faster speed
+            trainfiles = trainfiles[:200]
 
             # Create pairs of tuples to propagate through the siamese network
             pairs = [(trainfiles[i], trainfiles[i + 1]) for i in range(len(trainfiles) - 1)]
@@ -149,7 +149,7 @@ class Runner(object):
             for i, (file1, file2) in enumerate(pairs):
                 # Create label, if change point or not
                 cp = float(file2.split('_')[3])
-                label = torch.tensor([1.0]) if cp > 1.0 else torch.tensor([0.0])
+                label = torch.tensor([0.0]) if cp > 1.0 else torch.tensor([1.0])
                 label = label.to(self.device)
 
                 # Use previous step to avoid recomputation
@@ -192,7 +192,7 @@ class Runner(object):
             print('[Epoch:{}]:  Training Loss:{:.4}'.format(epoch, np.mean(losses)))
 
             # Save model every epoch alternate epoch
-            if (i+1) % 2 == 0:
+            if (epoch+1) % 2 == 0:
                 print("Saving model....")
                 self.save_model(save_path)
         

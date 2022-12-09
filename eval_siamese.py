@@ -126,7 +126,7 @@ class Runner(object):
 
         # Sort the timesteps according to the timestep number 
         testfiles = sorted(os.listdir(f'./data/{self.p.dataset}/{self.p.testfolder}'), 
-            key=lambda name: int(name.split('train_timestep_')[1].split('_')[0]))
+            key=lambda name: int(name.split('test_timestep_')[1].split('_')[0]))
 
         # Create pairs of tuples to propagate through the siamese network
         pairs = [(testfiles[i], testfiles[i + 1]) for i in range(len(testfiles) - 1)]
@@ -139,7 +139,7 @@ class Runner(object):
             for i, (file1, file2) in enumerate(pairs):
                 # Create label, if change point or not
                 cp = float(file2.split('_')[3])
-                label = 1 if cp > 1.0 else 0
+                label = 0 if cp > 1.0 else 1
 
                 # Use previous step to avoid recomputation
                 if len(ent_emb1) == 0:
