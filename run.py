@@ -46,7 +46,7 @@ class Runner(object):
 
         self.p.num_ent		= len(self.ent2id)
         self.p.num_rel		= len(self.rel2id) // 2
-        self.p.score_func   = 'transe'
+        self.p.score_func   = 'distmult'
 
         self.data = ddict(list)
         sr2o = ddict(set)
@@ -154,7 +154,7 @@ class Runner(object):
             self.device = torch.device('cpu')
 
         self.load_data()
-        self.model        = CompGCN_TransE(self.edge_index, self.edge_type, params=self.p)
+        self.model        = CompGCN_DistMult(self.edge_index, self.edge_type, params=self.p)
         self.model.to(self.device)
 
         self.optimizer    = torch.optim.Adam(self.model.parameters(), lr=self.p.lr, weight_decay=self.p.l2)

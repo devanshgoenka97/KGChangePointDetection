@@ -106,24 +106,35 @@ class Runner(object):
             triple, label = [ _.to(self.device) for _ in batch]
             return triple[:, 0], triple[:, 1], triple[:, 2], label
 
-    def save_model(self, save_path):
+    def save_layer(self, save_path):
         state = {
             'state_dict'	: self.layer.state_dict(),
             'optimizer'	: self.optimizer.state_dict(),
             'args'		: vars(self.p)
         }
         torch.save(state, save_path)
+
+    def load_layer(self, load_path):
+        state			= torch.load(load_path, map_location=self.device)
+        state_dict		= state['state_dict']
+
+        self.layer.load_state_dict(state_dict)
+        self.optimizer.load_state_dict(state['optimizer'])
     
     def load_model(self, load_path):
         state			= torch.load(load_path, map_location=self.device)
         state_dict		= state['state_dict']
-
         self.model.load_state_dict(state_dict)
 
     def train_siamese(self):
         save_path = os.path.join('./checkpoints', self.p.name)
 
         self.layer = torch.nn.Linear(in_features=K, out_features=1, bias=True).to(self.device)
+
+        # Load previous checkpoint
+        if self.p.restore:
+            self.load_layer(save_path)
+
         self.layer.train()
 
         # Using BCE with logits for better numerical stability
@@ -135,8 +146,8 @@ class Runner(object):
             trainfiles = sorted(os.listdir(f'./data/{self.p.dataset}/{self.p.trainfolder}'), 
                 key=lambda name: int(name.split('train_timestep_')[1].split('_')[0]))
 
-            # Train only on first 100 files for speed
-            trainfiles = trainfiles[:100]
+            # Train only on first 200 files for faster speed
+            trainfiles = trainfiles[:200]
 
             # Create pairs of tuples to propagate through the siamese network
             pairs = [(trainfiles[i], trainfiles[i + 1]) for i in range(len(trainfiles) - 1)]
@@ -149,7 +160,7 @@ class Runner(object):
             for i, (file1, file2) in enumerate(pairs):
                 # Create label, if change point or not
                 cp = float(file2.split('_')[3])
-                label = torch.tensor([1.0]) if cp > 1.0 else torch.tensor([0.0])
+                label = torch.tensor([0.0]) if cp > 1.0 else torch.tensor([1.0])
                 label = label.to(self.device)
 
                 # Use previous step to avoid recomputation
@@ -192,11 +203,11 @@ class Runner(object):
             print('[Epoch:{}]:  Training Loss:{:.4}'.format(epoch, np.mean(losses)))
 
             # Save model every epoch alternate epoch
-            if (i+1) % 2 == 0:
+            if (epoch+1) % 2 == 0:
                 print("Saving model....")
-                self.save_model(save_path)
+                self.save_layer(save_path)
         
-        self.save_model(save_path)
+        self.save_layer(save_path)
                 
 
     def get_embeddings(self, filename):
@@ -259,6 +270,13 @@ if __name__ == '__main__':
     # Set GPU seed
     if torch.cuda.is_available(): 
         torch.cuda.manual_seed(args.seed)
+
+    args.restore = False
+    # Only create new file when path exists otherwise resume training
+    if not os.path.exists(os.path.join('./checkpoints', args.name)):
+        args.name = args.name + '_' + time.strftime('%d_%m_%Y') + '_' + time.strftime('%H_%M_%S')
+    else:
+        args.restore = True
 
     model = Runner(args)
     model.train_siamese()
