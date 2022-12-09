@@ -79,7 +79,7 @@ class CompGCN_DistMult(CompGCNBase):
 		x += self.bias.expand_as(x)
 
 		score = torch.sigmoid(x)
-		return score
+		return score, sub_emb, rel_emb
 
 class CompGCN_ConvE(CompGCNBase):
 	def __init__(self, edge_index, edge_type, params=None):
