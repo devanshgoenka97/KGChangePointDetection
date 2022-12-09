@@ -117,8 +117,6 @@ class Runner(object):
     def load_model(self, load_path):
         state			= torch.load(load_path, map_location=self.device)
         state_dict		= state['state_dict']
-        self.best_val		= state['best_val']
-        self.best_val_mrr	= self.best_val['mrr'] 
 
         self.model.load_state_dict(state_dict)
 
@@ -195,6 +193,7 @@ class Runner(object):
 
             # Save model every epoch alternate epoch
             if (i+1) % 2 == 0:
+                print("Saving model....")
                 self.save_model(save_path)
         
         self.save_model(save_path)
@@ -238,7 +237,7 @@ if __name__ == '__main__':
     parser.add_argument('-batch',           dest='batch_size',      default=4,    type=int,       help='Batch size')
     parser.add_argument('-gpu',		type=str,               default='0',			help='Set GPU Ids : Eg: For CPU = -1, For Single GPU = 0')
     parser.add_argument('-seed',            dest='seed',            default=41504,  type=int,     	help='Seed for randomization')
-    parser.add_argument('-epoch',		dest='max_epochs', 	type=int,       default=100,  	help='Number of epochs')
+    parser.add_argument('-epoch',		dest='max_epochs', 	type=int,       default=10,  	help='Number of epochs')
     parser.add_argument('-l2',		type=float,             default=0.0,			help='L2 Regularization for Optimizer')
     parser.add_argument('-lr',		type=float,             default=0.001,			help='Starting Learning Rate')
     parser.add_argument('-num_workers',	type=int,               default=8,                     help='Number of processes to construct batches')
