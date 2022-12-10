@@ -152,15 +152,14 @@ class Runner(object):
                 differences = torch.topk(torch.tensor(differences).to(self.device), K)
                 values = torch.unsqueeze(differences.values, dim=0)
 
-                output = torch.round(torch.sigmoid(torch.squeeze(self.layer(values))))
+                output = torch.sigmoid(torch.squeeze(self.layer(values)))
                 res.append((output.detach().cpu().numpy().item(), label))
 
                 print('[Pair: {}/{}]'.format(i, len(pairs)))
                 # Important optimization, mark the second file as the first file for speedup
                 ent_emb1 = ent_emb2
 
-        print("Model output::")
-        print(res)
+        print("Model output:")
         f = open(f'./siamese_results_transe_{self.p.dataset}.txt', 'a')
 
         for i, (actual, expected)in enumerate(res):
@@ -168,8 +167,6 @@ class Runner(object):
             f.write(f"{actual}\t{expected}\n")
 
         f.close()
-
-                
 
     def get_embeddings(self, filename):
         # Create adjacency matrix for each train file

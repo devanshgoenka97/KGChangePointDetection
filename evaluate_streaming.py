@@ -60,6 +60,6 @@ if __name__ == '__main__':
         f.write(f"{v['mrr']}\n")
 
     f.close()
-    print("Done writing results to stream_mrr_{args.dataset}.txt")
+    print(f"Done writing results to stream_mrr_{args.dataset}.txt")
         
 
