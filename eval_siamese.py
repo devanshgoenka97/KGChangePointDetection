@@ -152,8 +152,8 @@ class Runner(object):
                 differences = torch.topk(torch.tensor(differences).to(self.device), K)
                 values = torch.unsqueeze(differences.values, dim=0)
 
-                output = torch.sigmoid(torch.squeeze(self.layer(values)))
-                res.append((output.detach().cpu().numpy(), label))
+                output = torch.round(torch.sigmoid(torch.squeeze(self.layer(values))))
+                res.append((output.detach().cpu().numpy()[0], label))
 
                 print('[Pair: {}/{}]'.format(i, len(pairs)))
                 # Important optimization, mark the second file as the first file for speedup
@@ -161,6 +161,13 @@ class Runner(object):
 
         print("Model output::")
         print(res)
+        f = open(f'./siamese_results_transe_{self.p.dataset}.txt', 'a')
+
+        for i, (actual, expected)in enumerate(res):
+            print(f"For timestep {i}, Actual = {actual}, Expected = {expected}")
+            f.write(f"{actual}\t{expected}\n")
+
+        f.close()
 
                 
 
