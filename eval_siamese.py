@@ -153,7 +153,7 @@ class Runner(object):
                 values = torch.unsqueeze(differences.values, dim=0)
 
                 output = torch.round(torch.sigmoid(torch.squeeze(self.layer(values))))
-                res.append((output.detach().cpu().numpy()[0], label))
+                res.append((output.detach().cpu().numpy().item(), label))
 
                 print('[Pair: {}/{}]'.format(i, len(pairs)))
                 # Important optimization, mark the second file as the first file for speedup
