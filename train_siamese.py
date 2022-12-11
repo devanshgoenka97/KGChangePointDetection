@@ -130,6 +130,7 @@ class Runner(object):
         save_path = os.path.join('./checkpoints', self.p.name)
 
         self.layer = torch.nn.Linear(in_features=K, out_features=1, bias=True).to(self.device)
+        self.optimizer = torch.optim.SGD(self.layer.parameters(), lr=self.p.lr, momentum=0.9)
 
         # Load previous checkpoint
         if self.p.restore:
@@ -139,7 +140,6 @@ class Runner(object):
 
         # Using BCE with logits for better numerical stability
         criterion = torch.nn.BCEWithLogitsLoss().to(self.device)
-        self.optimizer = torch.optim.SGD(self.layer.parameters(), lr=self.p.lr, momentum=0.9)
 
         for epoch in range(self.p.max_epochs):
             # Sort the timesteps according to the timestep number -- IMP for training
